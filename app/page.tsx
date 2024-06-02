@@ -14,10 +14,16 @@ export default function Home() {
         if (res.file) {
             Papa.parse(res.file, {
                 complete: (result) => {
-                    console.log(result);
-                    setCsvData(result.data as string[][]);
+                    if (res.hasHeader) {
+                        const data = result.data as any[];
+                        const headers = Object.keys(data[0]);
+                        const rows = data.map(row => headers.map(header => row[header]));
+                        setCsvData([headers, ...rows]);
+                    } else {
+                        setCsvData(result.data as string[][]);
+                    }
                 },
-                header: res.marketing_emails,
+                header: res.hasHeader,
             });
         }
     };
@@ -37,7 +43,7 @@ export default function Home() {
                     ) : (
                         <p>No file selected</p>
                     )}
-                    <p>Marketing Emails: {selectedFile.marketing_emails ? 'Yes' : 'No'}</p>
+                    <p>Marketing Emails: {selectedFile.hasHeader ? 'Yes' : 'No'}</p>
                 </div>
             )}
         </div>

@@ -20,32 +20,32 @@ import {Switch} from "@/components/ui/switch";
 
 export interface FormCsvResult {
     file?: File;
-    marketing_emails: boolean
+    hasHeader: boolean
 }
 
 const formSchemaClientSide = () => {
     if (typeof window !== "undefined") {
         return z.object({
             file: z.instanceof(FileList).optional(),
-            marketing_emails: z.boolean().default(false),
+            hasHeader: z.boolean().default(false),
         });
     }
     return z.object({
         file: z.any(),
-        marketing_emails: z.boolean().default(false),
+        hasHeader: z.boolean().default(false),
     });
 };
 
 interface CsvFromProps {
-    onFileChange: (file: FormCsvResult) => void;
+    onFileChange: (form: FormCsvResult) => void;
 }
 export interface FormCsvResult {
     file?: File;
-    marketing_emails: boolean;
+    hasHeader: boolean;
 }
 type FormData = z.infer<ReturnType<typeof formSchemaClientSide>>;
 
-export default function CsvFrom({onFileChange}: CsvFromProps) {
+export default function CsvFrom(formProps: CsvFromProps) {
     const [formSchema, setFormSchema] = useState<z.ZodObject<any>>(formSchemaClientSide());
 
     useEffect(() => {
@@ -53,7 +53,7 @@ export default function CsvFrom({onFileChange}: CsvFromProps) {
             setFormSchema(
                 z.object({
                     file: z.instanceof(FileList).optional(),
-                    marketing_emails: z.boolean().default(false)
+                    hasHeader: z.boolean().default(false)
                 })
             );
         }
@@ -61,20 +61,20 @@ export default function CsvFrom({onFileChange}: CsvFromProps) {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            marketing_emails: false,
+            hasHeader: false,
         },
     });
 
     const fileRef = form.register("file");
 
-    const onSubmit = (data: { file?: FileList, marketing_emails: boolean }) => {
+    const onSubmit = (data: { file?: FileList, hasHeader: boolean }) => {
         console.log(data);
         if (data.file && data.file.length > 0) {
             const file = data.file[0];
-            onFileChange({ file, marketing_emails: data.marketing_emails });
+            formProps.onFileChange({ file, hasHeader: data.hasHeader });
             console.log(file);
         } else {
-            onFileChange({ file: undefined, marketing_emails: data.marketing_emails });
+            formProps.onFileChange({ file: undefined, hasHeader: data.hasHeader });
         }
     };
     return (
@@ -84,7 +84,7 @@ export default function CsvFrom({onFileChange}: CsvFromProps) {
                 <div className="space-y-4">
                     <FormField
                         control={form.control}
-                        name="marketing_emails"
+                        name="hasHeader"
                         render={({field}) => (
                             <FormItem
                                 className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
