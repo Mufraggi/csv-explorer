@@ -2,8 +2,9 @@
 import CsvFrom, {FormCsvResult} from "@/components/csvFrom";
 import {useState} from "react";
 import {Label} from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import {Checkbox} from "@/components/ui/checkbox";
 import Papa from 'papaparse';
+import FormCsv from "@/components/formCsv";
 
 
 export default function Home() {
@@ -30,10 +31,6 @@ export default function Home() {
     return <div>
         <div>
             <h1>Upload CSV File</h1>
-            <div className="flex items-center space-x-2">
-                <Checkbox id="terms"/>
-                <Label htmlFor="terms">With Header ?</Label>
-            </div>
             <CsvFrom onFileChange={handleFileChange}/>
             {selectedFile && (
                 <div>
@@ -48,28 +45,7 @@ export default function Home() {
             )}
         </div>
         {csvData.length > 0 && (
-            <table className="min-w-full mt-10 bg-white">
-                <thead>
-                <tr>
-                    {csvData[0].map((header, index) => (
-                        <th key={index} className="py-2 px-4 border-b border-gray-200 bg-gray-100">
-                            {header}
-                        </th>
-                    ))}
-                </tr>
-                </thead>
-                <tbody>
-                {csvData.slice(1).map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                            <td key={cellIndex} className="py-2 px-4 border-b border-gray-200">
-                                {cell}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <FormCsv data={csvData} rowDisplay={10}/>
         )}
     </div>
 }
