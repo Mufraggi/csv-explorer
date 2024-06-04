@@ -5,11 +5,27 @@ import {Label} from "@/components/ui/label";
 import {Checkbox} from "@/components/ui/checkbox";
 import Papa from 'papaparse';
 import FormCsv from "@/components/formCsv";
+import CSVFilterForm from "@/components/csvFilterForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+
+
+export interface FilterCsv {
+    nbRows: number;
+}
 
 export default function Home() {
     const [selectedFile, setSelectedFile] = useState<FormCsvResult | null>(null);
     const [csvData, setCsvData] = useState<string[][]>([]);
+    const [filtres, setFiltres] = useState<FilterCsv>({
+        nbRows: 10
+    });
+
+    const handleFiltresChange = (newFiltres: FilterCsv) => {
+        console.log("Updating filters to:", newFiltres);
+        setFiltres(newFiltres);
+    };
+
     const handleFileChange = (res: FormCsvResult) => {
         setSelectedFile(res);
         if (res.file) {
@@ -44,8 +60,21 @@ export default function Home() {
                 </div>
             )}
         </div>
-        {csvData.length > 0 && (
-            <FormCsv data={csvData} rowDisplay={10}/>
-        )}
+        <Tabs defaultValue="account" className="w-[400px]">
+            <TabsList>
+                <TabsTrigger value="cleanRows">Clean Rows</TabsTrigger>
+                <TabsTrigger value="password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent value="cleanRows">
+                {csvData.length > 0 && (
+                    <>
+                        <CSVFilterForm filtres={filtres} onFiltresChange={handleFiltresChange}/>
+                        <FormCsv data={csvData} rowDisplay={filtres.nbRows}/>
+                    </>
+                )}
+            </TabsContent>
+            <TabsContent value="password">Change your password here.</TabsContent>
+        </Tabs>
+
     </div>
 }
