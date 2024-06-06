@@ -1,3 +1,5 @@
+"use client";
+
 import {FilterCsv} from "@/app/page";
 import {Input} from "@/components/ui/input";
 
@@ -6,14 +8,14 @@ export interface FilterCsvStart {
     onFiltresChange: (newFiltres: FilterCsv) => void
 }
 
-export default function  CSVFilterForm({ filtres, onFiltresChange }: FilterCsvStart) {
+export default function  CSVFilterForm(filterCsv: FilterCsvStart)  {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         const numericValue = parseInt(value, 10);
         console.log(numericValue)
         if (!isNaN(numericValue)) {
-            onFiltresChange({
-                ...filtres,
+            filterCsv.onFiltresChange({
+                ...filterCsv.filtres,
                 [name]: numericValue
             });
         }
@@ -27,7 +29,7 @@ export default function  CSVFilterForm({ filtres, onFiltresChange }: FilterCsvSt
                     <Input
                         type="number"
                         name="nbRows"
-                        value={filtres.nbRows}
+                        value={filterCsv.filtres.nbRows}
                         onChange={handleChange}
                         className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                     />
