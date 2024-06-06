@@ -25,30 +25,28 @@ import React from "react";
 import {Button} from "@/components/ui/button";
 
 interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+    columns: ColumnDef<TData, TValue>[];
+    data: TData[];
 }
 
 export interface CsvDataToDisplayed<TData, TValue> {
-    dataT: DataTableProps<TData, TValue>
-    rowDisplay: number
+    dataT: DataTableProps<TData, TValue>;
+    rowDisplay: number;
 }
-
 
 export function DataTable<TData, TValue>({
                                              rowDisplay,
                                              dataT,
                                          }: CsvDataToDisplayed<TData, TValue>) {
-    const data = dataT.data.slice(0, rowDisplay);
-    const columns = dataT.columns
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
+    const data = React.useMemo(() => dataT.data.slice(0, rowDisplay), [dataT.data, rowDisplay]);
+    const columns = dataT.columns;
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
-    })
+    });
 
     return (
         <>
@@ -60,25 +58,16 @@ export function DataTable<TData, TValue>({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter(
-                                (column) => column.getCanHide()
-                            )
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })}
+                        {table.getAllColumns().filter(column => column.getCanHide()).map((column) => (
+                            <DropdownMenuCheckboxItem
+                                key={column.id}
+                                className="capitalize"
+                                checked={column.getIsVisible()}
+                                onCheckedChange={(value) => column.toggleVisibility(value)}
+                            >
+                                {column.id}
+                            </DropdownMenuCheckboxItem>
+                        ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
@@ -86,31 +75,21 @@ export function DataTable<TData, TValue>({
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                )
-                            })}
+                            {headerGroup.headers.map((header) => (
+                                <TableHead key={header.id}>
+                                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                </TableHead>
+                            ))}
                         </TableRow>
                     ))}
                 </TableHeader>
                 <TableBody>
                     {table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                            >
+                            <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        {cell.getContext().getValue() !== undefined ? flexRender(cell.column.columnDef.cell, cell.getContext()) : 'N/A'}
                                     </TableCell>
                                 ))}
                             </TableRow>
@@ -125,5 +104,5 @@ export function DataTable<TData, TValue>({
                 </TableBody>
             </Table>
         </>
-    )
+    );
 }
