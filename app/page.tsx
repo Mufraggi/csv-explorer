@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {ColumnDef} from "@tanstack/react-table";
 import {DataTable} from "@/components/table-data/data-table";
+import CSVFilterForm from "@/components/csvFilterForm";
 
 export interface FilterCsv {
     nbRows: number;
@@ -17,7 +18,7 @@ export default function Home() {
     const [columns, setColumns] = useState<ColumnDef<CSVData>[]>([]);
 
     const [filtres, setFiltres] = useState<FilterCsv>({
-        nbRows: 10
+        nbRows: 300
     });
 
     const handleFiltresChange = (newFiltres: FilterCsv) => {
@@ -33,14 +34,17 @@ export default function Home() {
                 skipEmptyLines: true,
                 complete: (results) => {
                     console.log("Parsing complete", results);
-                    const headers = results.meta.fields as string[];
+                    const h = results.meta.fields as string[];
+
                     const parsedData = results.data.map((row) => {
+                        console.log("rows: ", row);
                         const rowObject: CSVData = {};
-                        headers.forEach((header) => {
-                            rowObject[header] = row[header] !== undefined ? row[header] : '';
+                        h.forEach((header) => {
+                            rowObject[header.replace(".", "-")] = row[header] !== undefined ? row[header] : '';
                         });
                         return rowObject;
                     });
+                    const headers = h.map(x => x.replace(".", "-"))
                     console.log("Parsed Data:", parsedData);
 
                     setData(parsedData);
@@ -69,6 +73,7 @@ export default function Home() {
                 <TabsContent value="cleanRows">
                     {data.length > 0 && (
                         <>
+                            <CSVFilterForm filtres={filtres} onFiltresChange={handleFiltresChange}/>
                             <DataTable dataT={{ data, columns }} rowDisplay={filtres.nbRows} />
                         </>
                     )}
